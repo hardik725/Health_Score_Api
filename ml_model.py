@@ -12,7 +12,7 @@ app = FastAPI()
 # ⬇️ Add CORS middleware before any route definitions
 origins = [
     "http://localhost:5173",  # ⬅️ Add your React frontend's origin
-    "https://your-production-frontend.com"  # ⬅️ Replace with your deployed frontend if needed
+    "https://view-tube-frontend.vercel.app"  # ⬅️ Replace with your deployed frontend if needed
 ]
 
 app.add_middleware(
