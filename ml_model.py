@@ -4,9 +4,24 @@ import pickle
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Literal
+from fastapi.middleware.cors import CORSMiddleware  # ⬅️ Add this
 
 # Initialize FastAPI app
 app = FastAPI()
+
+# ⬇️ Add CORS middleware before any route definitions
+origins = [
+    "http://localhost:5173",  # ⬅️ Add your React frontend's origin
+    "https://your-production-frontend.com"  # ⬅️ Replace with your deployed frontend if needed
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # or use ["*"] for development only
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load model and expected columns on startup
 with open('health_model.pkl', 'rb') as f:
@@ -43,15 +58,12 @@ def prepare_for_prediction(example: pd.DataFrame) -> pd.DataFrame:
 # Prediction route
 @app.post("/predictHealthScore")
 def predict_health_score(input_data: HealthInput):
-    # Convert input to DataFrame
     input_df = pd.DataFrame([input_data.dict()])
 
-    # Prepare data
     try:
         X = prepare_for_prediction(input_df)
         prediction = model.predict(X)[0]
 
-        # Provide interpretation
         if prediction >= 90:
             interpretation = "Outstanding health metrics. Excellent balance of habits!"
         elif prediction >= 80:
